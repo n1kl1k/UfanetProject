@@ -36,7 +36,7 @@ public class AccumulationService {
         dto.setServiceId(message.getServiceId());
         dto.setOperationType(message.getOperationType());
         dto.setAmount(message.getAmount());
-        addCumulative(message.getAccountId(), dto);
+        addCumulative(dto.getAccountId(), dto);
     }
 
     @Transactional

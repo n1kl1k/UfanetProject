@@ -21,6 +21,7 @@ public class Cumulative {
     private BigDecimal amount;
 
     @Column(name = "operation_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private OperationType operationType;
 
     @Column(name = "create_at", updatable = false)
