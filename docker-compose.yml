@@ -1,0 +1,14 @@
+services:
+  activemq:
+    image: apache/activemq-classic:latest
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+    volumes:
+      - activemq_data:/opt/apache-activemq/data
+
+volumes:
+  activemq_data:

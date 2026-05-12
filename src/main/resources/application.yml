@@ -1,0 +1,13 @@
+spring:
+  activemq:
+    broker-url: tcp://localhost:61616
+    user: admin
+    password: admin
+    pool:
+      enabled: true
+      max-connections: 10
+
+app:
+  queues:
+    transaction: account.transaction.queue
+    accumulative: account.accumulative.queue
