@@ -9,6 +9,7 @@ import com.example.un.services.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.annotation.JmsListener;
@@ -24,6 +25,7 @@ public class OperationListener {
     private final ReferenceRepository referenceRepository;
     private final ObjectMapper objectMapper;
 
+    @Transactional
     @JmsListener(
             destination = "${app.queues.transaction}",
             containerFactory = "jmsListenerContainerFactory"
@@ -55,6 +57,7 @@ public class OperationListener {
             throw e;
         }
     }
+    @Transactional
     @JmsListener(
             destination = "${app.queues.accumulative}",
             containerFactory = "jmsListenerContainerFactory"
