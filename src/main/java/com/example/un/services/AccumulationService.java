@@ -67,7 +67,9 @@ public class AccumulationService {
             BigDecimal deltaVolume = dto.getAmount();
             BigDecimal newVolume = currentValue.add(deltaVolume);
             BigDecimal moneyCharge = deltaVolume.multiply(servRepo.getServiceCostById(dto.getServiceId())).setScale(2, RoundingMode.HALF_UP);
-
+            if(acc.getBalance().subtract(moneyCharge).compareTo(BigDecimal.ZERO)<0){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"insufficient funds");
+            }
             acc.setBalance(acc.getBalance().subtract(moneyCharge));
 
             if (mountly == null) {
