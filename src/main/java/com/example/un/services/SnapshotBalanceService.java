@@ -26,8 +26,6 @@ public class SnapshotBalanceService {
     @Scheduled(cron = "0 5 0 1 * *")
     @Transactional
     public void createMountSnapshot() {
-        // Надёжный способ получить последний день предыдущего месяца
-        // независимо от того, когда именно запустился крон
         LocalDate lastDayOfPrevMonth = LocalDate.now()
                 .withDayOfMonth(1)
                 .minusDays(1);

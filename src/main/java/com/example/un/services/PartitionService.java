@@ -26,7 +26,6 @@ public class PartitionService {
     public void addNextMonthPartition() {
         YearMonth nextMonth = YearMonth.now().plusMonths(1);
         String partitionName = "p" + nextMonth.format(PARTITION_FORMATTER);
-        // Граница — первый день месяца, следующего за создаваемой партицией
         String boundary = nextMonth.plusMonths(1).atDay(1).toString();
 
         String sql = String.format(
