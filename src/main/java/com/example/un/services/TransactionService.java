@@ -11,11 +11,16 @@ import com.example.un.models.SnapshotBalance;
 import com.example.un.repository.AccountRepository;
 import com.example.un.repository.OperationRepository;
 import com.example.un.repository.SnapshotBalanceRepository;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Timer;
 import jakarta.transaction.Transactional;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,12 +31,26 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class TransactionService {
 
     private final AccountRepository accRepo;
     private final OperationRepository operRepo;
     private final SnapshotBalanceRepository sBRepo;
+
+    private final Counter orderCounter;
+    private final MeterRegistry registry;
+
+
+    public TransactionService(AccountRepository accRepo, OperationRepository operRepo, SnapshotBalanceRepository sBRepo, MeterRegistry registry){
+        this.accRepo = accRepo;
+        this.operRepo = operRepo;
+        this.sBRepo = sBRepo;
+        this.orderCounter =Counter.builder("operation.orders.total")
+                .description("Total number of orders processed")
+                .tags("type","premium")
+                .register(registry);
+        this.registry = registry;
+    }
 
     @Transactional
     public void applyTransaction(TransactionMessage message){
@@ -45,6 +64,10 @@ public class TransactionService {
     //Create base operation(PAYMENT, CHARGE)
     @Transactional
     public CreateOperDto createBaseOper(Long accountId, CreateOperDto dto){
+        Timer.Sample sample = Timer.start(registry);
+        try {
+
+
         Account acc = accRepo.findById(accountId).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.BAD_REQUEST,"accountID didn`t find"));
         Operation oper = new Operation();
@@ -70,9 +93,15 @@ public class TransactionService {
             }
             acc.setBalance(acc.getBalance().add(oper.getAmount()));
         }
+        orderCounter.increment();
         accRepo.save(acc);
         Operation saved = operRepo.save(oper);
         return mapToDto(saved,acc.getId());
+        }finally {
+            sample.stop(Timer.builder("my.method.execution.time")
+                    .description("Time taken")
+                    .register(registry));
+        }
     }
 
     //Edit base operation
