@@ -1,4 +1,20 @@
 services:
+  app:
+    build: .
+    ports:
+      - "8081:8080"
+    depends_on:
+      - activemq
+      - mysql
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ufanetProj
+    volumes:
+      - mysql_data:/var/lib/mysql
   activemq:
     image: apache/activemq-classic:latest
     ports:
@@ -10,5 +26,27 @@ services:
     volumes:
       - activemq_data:/opt/apache-activemq/data
 
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./src/main/resources/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - app
+
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus
+
 volumes:
   activemq_data:
+  mysql_data:

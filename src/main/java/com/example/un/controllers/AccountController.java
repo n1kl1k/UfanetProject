@@ -7,6 +7,7 @@ import com.example.un.repository.OperationRepository;
 import com.example.un.services.AccumulationService;
 import com.example.un.services.MessageProduserService;
 import com.example.un.services.TransactionService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -49,12 +50,14 @@ public class AccountController {
     }
 
     //Получение текущего баланса по id юзера
+    @Transactional
     @GetMapping("/{accountId}/currentBalance")
     public String getBalanceUser(@PathVariable Long accountId){
         return "Balance in account: " + accRepo.getBalanceById(accountId) + " where id: " + accountId;
     }
 
     //Получить баланс на нужную дату конкретного юзера
+    @Transactional
     @GetMapping("/{accountId}/balance/history")
     public ResponseEntity<BalanceResponse> getBalanceOnDate(
             @PathVariable Long accountId,
